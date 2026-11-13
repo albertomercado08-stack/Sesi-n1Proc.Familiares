@@ -1,0 +1,965 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Módulo IV: Procedimientos Familiares | Sesión 1</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #fdfbf7; /* Marfil / Ivory para todas las diapositivas */
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+
+        .font-serif-title { font-family: 'Playfair Display', serif; }
+        
+        /* Contenedor principal 16:9 (Horizontal) */
+        #presentation-wrapper {
+            width: 100%;
+            max-width: 1400px;
+            aspect-ratio: 16 / 9;
+            max-height: 92vh;
+            background-color: #ffffff; /* Fondo principal blanco */
+            border-radius: 1rem;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Ocultamos el cursor normal en la zona de presentación para el láser */
+        .presentation-zone { cursor: none !important; }
+        .presentation-zone section { background-color: #ffffff !important; }
+
+        /* Animaciones de Diapositivas */
+        .slide {
+            display: none;
+            opacity: 0;
+            transform: scale(0.98);
+            transition: opacity 0.4s ease-out, transform 0.4s ease-out;
+            height: 100%;
+            width: 100%;
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            transform: scale(1);
+        }
+
+        /* Scrollbar estilizado pastel */
+        .slide-scroll::-webkit-scrollbar { width: 6px; }
+        .slide-scroll::-webkit-scrollbar-track { background: transparent; }
+        .slide-scroll::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+        .slide-scroll::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+
+        /* Efectos visuales de Puntero Láser */
+        #laser-pointer {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            background-color: #ef4444; /* red-500 */
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 0 12px 4px rgba(239, 68, 68, 0.7), 0 0 25px 10px rgba(239, 68, 68, 0.4);
+            transition: opacity 0.15s ease;
+            opacity: 0; /* Oculto inicialmente */
+        }
+
+        /* Degradado Dorado-Azul adaptado a marfil */
+        .gold-blue-gradient-text {
+            background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 50%, #047857 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        /* Paleta Pastel Personalizada */
+        .bg-pastel-blue { background-color: #f0f9ff; }
+        .bg-pastel-green { background-color: #f0fdf4; }
+        .bg-pastel-peach { background-color: #fff7ed; }
+        .bg-pastel-purple { background-color: #faf5ff; }
+        .bg-pastel-mint { background-color: #f0fdfa; }
+        .bg-pastel-rose { background-color: #fff1f2; }
+        .bg-pastel-yellow { background-color: #fefce8; }
+
+        /* Paneles Glass */
+        .glass-panel {
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+            backdrop-filter: blur(10px);
+            transition: transform 0.2s;
+            background-color: #ffffff;
+        }
+        .glass-panel:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.06);
+        }
+
+        /* Ecosistemas (Nodos y Conectores) */
+        .node-connector {
+            position: absolute;
+            background-color: #cbd5e1;
+            z-index: 0;
+        }
+        .node-content {
+            position: relative;
+            z-index: 10;
+        }
+
+        /* Cajas de Artículos (Verbatim) */
+        .article-box {
+            background: #ffffff;
+            border-left: 5px solid #3b82f6; /* Blue-500 */
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            padding: 1rem;
+        }
+        .article-quote {
+            font-family: 'Playfair Display', serif;
+            color: #1e293b;
+        }
+
+        /* Preguntas Detonantes */
+        .question-box {
+            background-color: #FEF3C7; /* Amber-50 */
+            border-left: 4px solid #F59E0B; /* Amber-500 */
+            color: #92400E; /* Amber-900 */
+            padding: 0.75rem 1rem;
+            border-radius: 0 0.5rem 0.5rem 0;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: flex-start;
+            gap: 0.5rem;
+            margin-top: 1rem;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+        }
+
+        /* Cuadros Giratorios */
+        .flip-card { background-color: transparent; perspective: 1000px; height: 100%; }
+        .flip-card-inner { position: relative; width: 100%; height: 100%; text-align: center; transition: transform 0.7s; transform-style: preserve-3d; }
+        .flip-card:hover .flip-card-inner { transform: rotateY(180deg); }
+        .flip-card-front, .flip-card-back { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 0.75rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+        .flip-card-front { background-color: #ffffff; border: 1px solid #e2e8f0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; }
+        .flip-card-back { transform: rotateY(180deg); display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 1.5rem; text-align: left;}
+
+        /* Estilos para PDF / Impresión */
+        @media print {
+            @page { size: landscape; margin: 0; }
+            body, html { height: auto !important; overflow: visible !important; background-color: white !important; }
+            header, .mt-4 { display: none !important; }
+            #presentation-wrapper { height: auto !important; max-height: none !important; box-shadow: none !important; border: none !important; border-radius: 0 !important; }
+            main { height: auto !important; overflow: visible !important; display: block !important; }
+            .slide { display: flex !important; opacity: 1 !important; transform: none !important; height: 100vh !important; page-break-after: always; break-after: page; page-break-inside: avoid; }
+            .slide-scroll { overflow: visible !important; }
+            .flip-card { height: auto !important; page-break-inside: avoid; margin-bottom: 1rem; }
+            .flip-card-inner { transform: none !important; transition: none !important; display: flex; flex-direction: column; gap: 0.5rem; }
+            .flip-card-front, .flip-card-back { position: relative !important; transform: none !important; backface-visibility: visible !important; height: auto !important; padding: 1rem !important; }
+            .flip-card-back { background-color: #f8fafc !important; color: #0f172a !important; border: 1px solid #e2e8f0; text-align: center; }
+            .animate-pulse { display: none !important; } 
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Contenedor Principal 16:9 -->
+    <div id="presentation-wrapper">
+        
+        <!-- Puntero Láser -->
+        <div id="laser-pointer"></div>
+
+        <!-- Barra de Progreso -->
+        <div class="w-full bg-slate-200 h-1 shrink-0 z-50">
+            <div id="progress-bar" class="h-full bg-blue-600 transition-all duration-300 w-0"></div>
+        </div>
+
+        <!-- Barra Superior (Header) -->
+        <header class="w-full h-12 bg-white/90 backdrop-blur border-b border-slate-200 px-4 md:px-6 flex items-center justify-between z-40 shrink-0">
+            <div class="flex items-center gap-3">
+                <div class="w-7 h-7 rounded bg-blue-900 border border-blue-800 flex items-center justify-center text-amber-400 shadow-sm">
+                    <i data-lucide="scale" class="w-4 h-4"></i>
+                </div>
+                <div>
+                    <span class="text-[11px] font-bold uppercase tracking-wider text-blue-900 block font-serif-title">Módulo IV: Procedimientos Familiares</span>
+                    <span class="text-[9px] text-slate-500 hidden sm:inline">Programa de Posgrado en Derecho de Familia</span>
+                </div>
+            </div>
+            <div id="top-slide-title" class="hidden lg:block text-[11px] text-slate-700 font-semibold px-3 py-1 rounded-full bg-slate-100 border border-slate-200 truncate max-w-md"></div>
+            <div class="flex items-center gap-2">
+                <span id="slide-counter" class="text-[10px] font-bold text-slate-500 mr-2">1 / X</span>
+                <button onclick="window.print()" title="Descargar como PDF" class="p-1.5 text-slate-600 hover:text-rose-600 hover:bg-slate-100 rounded transition-colors flex items-center gap-1">
+                    <i data-lucide="printer" class="w-4 h-4"></i>
+                    <span class="text-[10px] font-bold hidden sm:inline">PDF</span>
+                </button>
+                <button onclick="toggleFullscreen()" title="Pantalla Completa" class="p-1.5 text-slate-600 hover:text-blue-900 hover:bg-slate-100 rounded transition-colors">
+                    <i data-lucide="maximize" class="w-4 h-4" id="fullscreen-icon"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Zona de Presentación (Slides) -->
+        <main class="flex-1 relative w-full overflow-hidden bg-white presentation-zone" id="presentation-stage">
+            
+            <!-- DIAPOSITIVA 0: CARÁTULA -->
+            <section class="slide active flex-col items-center justify-center p-8 text-center relative" data-title="Carátula">
+                <div class="z-10 flex flex-col items-center my-auto w-full max-w-5xl">
+                    <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-teal-200 bg-teal-50 text-teal-800 text-[10px] tracking-widest uppercase mb-6 font-semibold shadow-sm">
+                        <i data-lucide="bookmark" class="w-3.5 h-3.5 text-teal-600"></i>
+                        Sesión 1
+                    </div>
+
+                    <h2 class="text-lg sm:text-xl font-bold tracking-widest text-slate-500 uppercase mb-3 font-serif-title">
+                        Módulo IV. Procedimientos Familiares
+                    </h2>
+
+                    <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight font-serif-title mb-6 leading-tight gold-blue-gradient-text">
+                        Disposiciones Generales del<br>Proceso Familiar y Nulidad
+                    </h1>
+
+                    <div class="bg-white border border-slate-200 p-5 rounded-xl shadow-sm w-full max-w-3xl">
+                        <p class="text-slate-600 text-sm md:text-base font-serif-title italic leading-relaxed">
+                            «Naturaleza, principios, jurisdicción, competencia, sujetos procesales y nulidad en el Libro Segundo de la Ley N.º 603, Código de las Familias y del Proceso Familiar, artículos 219 a 251»
+                        </p>
+                    </div>
+
+                    <div class="mt-8">
+                        <p class="text-xs text-slate-400 uppercase tracking-widest mb-1">Guion de Exposición Oral</p>
+                        <p class="text-sm font-bold text-teal-700">M.Sc. Alberto Mercado Carrasco</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DIAPOSITIVA 1: INTRODUCCIÓN (ECOSISTEMA) -->
+            <section class="slide flex-col p-6 max-w-7xl mx-auto w-full h-full" data-title="Introducción a la Sesión">
+                <div class="flex flex-col mb-4 shrink-0 border-b-2 border-slate-200 pb-2">
+                    <span class="text-blue-600 font-bold text-[10px] uppercase tracking-wider mb-1">Introducción</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 font-serif-title flex items-center gap-2">
+                        <i data-lucide="users-2" class="w-6 h-6 text-blue-500"></i> EL ECOSISTEMA DEL CONFLICTO: DOÑA JUSTINA Y ROLANDO
+                    </h2>
+                </div>
+                
+                <div class="flex-1 flex flex-col gap-6 overflow-hidden">
+                    <p class="text-xs text-slate-600 text-center">Antes de discutir quién tiene razón, necesitamos identificar a todos los actores del ecosistema que conforman este litigio.</p>
+                    
+                    <!-- Diagrama Ecosistema -->
+                    <div class="relative flex-1 w-full max-w-4xl mx-auto flex items-center justify-center">
+                        
+                        <!-- Nodo Central -->
+                        <div class="z-10 bg-indigo-50 border border-indigo-200 p-4 rounded-full w-36 h-36 flex flex-col items-center justify-center text-center shadow-sm">
+                            <i data-lucide="home" class="w-6 h-6 text-indigo-500 mb-1"></i>
+                            <span class="font-bold text-indigo-900 text-xs">Divorcio, Guarda y Asistencia</span>
+                        </div>
+
+                        <!-- Conectores (Absolute) -->
+                        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                            <svg class="w-full h-full" style="z-index: 0;">
+                                <line x1="50%" y1="50%" x2="20%" y2="25%" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4" />
+                                <line x1="50%" y1="50%" x2="80%" y2="25%" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4" />
+                                <line x1="50%" y1="50%" x2="20%" y2="75%" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4" />
+                                <line x1="50%" y1="50%" x2="80%" y2="75%" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4" />
+                                <line x1="50%" y1="50%" x2="50%" y2="85%" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4" />
+                                <line x1="50%" y1="50%" x2="50%" y2="15%" stroke="#cbd5e1" stroke-width="2" stroke-dasharray="4" />
+                            </svg>
+                        </div>
+
+                        <!-- Nodos Periféricos -->
+                        <!-- Actor -->
+                        <div class="absolute top-[10%] left-[10%] z-10 bg-white border border-slate-200 p-3 rounded-lg shadow-sm w-40 text-center">
+                            <span class="font-bold text-slate-800 text-[11px] block">Justina (38)</span>
+                            <span class="text-[9px] text-slate-500">Demanda divorcio. Quechuahablante. Reside en Cbba.</span>
+                        </div>
+                        <!-- Demandado -->
+                        <div class="absolute top-[10%] right-[10%] z-10 bg-white border border-slate-200 p-3 rounded-lg shadow-sm w-40 text-center">
+                            <span class="font-bold text-slate-800 text-[11px] block">Rolando</span>
+                            <span class="text-[9px] text-slate-500">Reside en Montero. Su hermano (Edwin) contesta sin poder.</span>
+                        </div>
+                        <!-- NNA -->
+                        <div class="absolute bottom-[15%] left-[10%] z-10 bg-white border border-slate-200 p-3 rounded-lg shadow-sm w-40 text-center">
+                            <span class="font-bold text-slate-800 text-[11px] block">Valeria (13) / Joaquín (6)</span>
+                            <span class="text-[9px] text-slate-500">Valeria pide hablar con el juez. Joaquín vive con la abuela (Elvira).</span>
+                        </div>
+                        <!-- Terceros -->
+                        <div class="absolute bottom-[15%] right-[10%] z-10 bg-white border border-slate-200 p-3 rounded-lg shadow-sm w-40 text-center">
+                            <span class="font-bold text-slate-800 text-[11px] block">Sr. Quiroga (Tercero)</span>
+                            <span class="text-[9px] text-slate-500">Compró lote ganancial inscrito en DD.RR. Pide intervenir.</span>
+                        </div>
+                        <!-- Juez -->
+                        <div class="absolute bottom-[2%] left-[40%] z-10 bg-white border border-slate-200 p-3 rounded-lg shadow-sm w-48 text-center">
+                            <span class="font-bold text-slate-800 text-[11px] block">Juez Público de Familia</span>
+                            <span class="text-[9px] text-slate-500">Observa falta de normas, declina guarda y actúa tras excusarse.</span>
+                        </div>
+                    </div>
+
+                    <div class="question-box shrink-0">
+                        <i data-lucide="help-circle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                        <div>
+                            <strong class="block mb-1">El Desafío:</strong>
+                            Para resolver este caos, aplicaremos el <strong>Título I (Arts. 219-247)</strong> y el <strong>Cap. I del Título II (Nulidad, Arts. 248-251)</strong> de la Ley N.º 603 (Código de las Familias).
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DIAPOSITIVA 2: UNIDAD I (1.1 y 1.2 ESQUEMA/TIMELINE) -->
+            <section class="slide flex-col p-6 max-w-7xl mx-auto w-full h-full" data-title="Unidad I: Naturaleza y Principios">
+                <div class="flex flex-col mb-4 shrink-0 border-b-2 border-indigo-200 pb-2">
+                    <span class="text-indigo-600 font-bold text-[10px] uppercase tracking-wider mb-1">UNIDAD I</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 font-serif-title flex items-center gap-2">
+                        <i data-lucide="shield" class="w-6 h-6 text-indigo-500"></i> NATURALEZA Y FORMACIÓN HISTÓRICA
+                    </h2>
+                </div>
+                
+                <div class="slide-scroll flex-1 overflow-y-auto pr-2 flex flex-col gap-4">
+                    
+                    <h3 class="font-bold text-indigo-900 text-sm mb-2 text-center">1.1. Formación del proceso familiar (Evolución)</h3>
+                    
+                    <!-- Diagrama de Pasos -->
+                    <div class="flex flex-col md:flex-row items-center justify-center gap-4 mb-6">
+                        <div class="bg-white border border-slate-200 p-3 rounded-lg text-center w-full md:w-1/3 shadow-sm">
+                            <span class="text-slate-400 font-bold text-[10px] block mb-1">República</span>
+                            <span class="font-bold text-slate-800 text-[11px]">Código Civil Santa Cruz 1831</span>
+                            <p class="text-[9px] text-slate-500 mt-1">Trámite como litigio civil privado.</p>
+                        </div>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-slate-300 hidden md:block"></i>
+                        <i data-lucide="arrow-down" class="w-4 h-4 text-slate-300 md:hidden"></i>
+                        <div class="bg-white border border-slate-200 p-3 rounded-lg text-center w-full md:w-1/3 shadow-sm">
+                            <span class="text-slate-400 font-bold text-[10px] block mb-1">Autonomía Incompleta</span>
+                            <span class="font-bold text-slate-800 text-[11px]">Código de Familia 1972</span>
+                            <p class="text-[9px] text-slate-500 mt-1">Jurisdicción propia pero remisión al proc. civil.</p>
+                        </div>
+                        <i data-lucide="arrow-right" class="w-4 h-4 text-slate-300 hidden md:block"></i>
+                        <i data-lucide="arrow-down" class="w-4 h-4 text-slate-300 md:hidden"></i>
+                        <div class="bg-pastel-blue border border-blue-200 p-3 rounded-lg text-center w-full md:w-1/3 shadow-sm">
+                            <span class="text-blue-600 font-bold text-[10px] block mb-1">Autonomía Constitucional</span>
+                            <span class="font-bold text-blue-900 text-[11px]">Ley 603 (2014)</span>
+                            <p class="text-[9px] text-blue-700 mt-1">Lectura desde DD.HH. Vigencia plena 06/02/2016 (AS 1394/2016-RI, 5 de diciembre de 2016).</p>
+                        </div>
+                    </div>
+
+                    <!-- 1.2 Naturaleza y Base Convencional -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-1">
+                        <div class="glass-panel p-4 rounded-xl">
+                            <h3 class="font-bold text-slate-800 text-sm mb-3 border-b border-slate-100 pb-1">Bases Convencionales (Corte IDH)</h3>
+                            <ul class="text-[10px] text-slate-700 space-y-2">
+                                <li>• <strong>Caso Angulo Losada vs. Bolivia (18 de noviembre de 2022):</strong> Diligencia reforzada para evitar revictimización de NNA.</li>
+                                <li>• <strong>Caso Fornerón vs. Argentina (27 de abril de 2012):</strong> Demora en guarda decide el fondo.</li>
+                                <li>• <strong>Caso Córdoba vs. Paraguay (4 de septiembre de 2023):</strong> Celeridad excepcional en ejecución.</li>
+                                <li>• <strong>Caso María vs. Argentina (22 de agosto de 2023):</strong> Derecho de madre adolescente a ser asistida.</li>
+                                <li>• <strong>OC-17/02 (28 de agosto de 2002):</strong> NNA son sujetos de derechos, las garantías deben adecuarse.</li>
+                            </ul>
+                        </div>
+
+                        <div class="glass-panel p-4 rounded-xl bg-pastel-mint border-teal-200">
+                            <h3 class="font-bold text-teal-900 text-sm mb-2 border-b border-teal-300 pb-1 flex justify-between items-center">
+                                1.2. Naturaleza <span class="bg-teal-100 text-teal-700 px-2 py-0.5 rounded text-[10px]">Art. 219 Ley 603</span>
+                            </h3>
+                            <ul class="text-[10px] text-slate-700 space-y-2">
+                                <li><strong>Orden Público & Social:</strong> No se dejan de lado por pacto.</li>
+                                <li><strong>Excepción:</strong> Normas dispositivas (ej. monto asistencia).</li>
+                                <li><strong>Prohibición de negar justicia:</strong> Acudir a <em>principios grales. del der. familiar</em>. <br><br>
+                                <span class="text-teal-800 bg-teal-50 p-1 block rounded">TSJ (AS 0741/2022, 5 de octubre de 2022): Supletoriedad del CPC solo ante vacío, oscuridad o imprecisión.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="question-box shrink-0">
+                        <i data-lucide="help-circle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                        <span>Si el Art. 219.III ordena acudir a principios de fam. y no al CPC, ¿la supletoriedad (TSJ AS 0741/2022) es correcta o una herencia del Cód. de 1972?</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DIAPOSITIVA 3: UNIDAD I (1.3 y 1.4 ECOSISTEMA DE PRINCIPIOS) -->
+            <section class="slide flex-col p-6 max-w-7xl mx-auto w-full h-full" data-title="1.3. Principios y 1.4. Relación Interjurisdiccional">
+                <div class="flex flex-col mb-4 shrink-0 border-b-2 border-indigo-200 pb-2">
+                    <span class="text-indigo-600 font-bold text-[10px] uppercase tracking-wider mb-1">UNIDAD I</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 font-serif-title flex items-center gap-2">
+                        <i data-lucide="list-checks" class="w-6 h-6 text-indigo-500"></i> PRINCIPIOS PROCESALES FAMILIARES (ART. 220)
+                    </h2>
+                </div>
+                
+                <div class="slide-scroll flex-1 overflow-y-auto pr-2 flex flex-col gap-4 relative">
+                    
+                    <!-- Ecosistema de Principios usando Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 flex-1">
+                        
+                        <!-- Nodo 1 -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-blue-50 w-16 h-16 rounded-bl-full -z-10"></div>
+                            <h4 class="font-bold text-blue-900 text-xs uppercase mb-3"><i data-lucide="play" class="inline w-3 h-3"></i> ¿Cómo se desarrolla?</h4>
+                            <ul class="text-[10px] text-slate-700 space-y-2 z-10">
+                                <li><strong>Oralidad / Inmediación:</strong> Relación directa.</li>
+                                <li><strong>No Formalismo:</strong> No se exigen formas vacías. Ej (Art. 258.III): Demanda no se rechaza por falta de cita legal (Error del juez de Justina).</li>
+                                <li><strong>Impulso Procesal / Preclusión:</strong> Juez dirige y etapas no retroceden.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Nodo 2 -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-amber-50 w-16 h-16 rounded-bl-full -z-10"></div>
+                            <h4 class="font-bold text-amber-900 text-xs uppercase mb-3"><i data-lucide="brain" class="inline w-3 h-3"></i> ¿Con qué criterio decide?</h4>
+                            <ul class="text-[10px] text-slate-700 space-y-2 z-10">
+                                <li><strong>Verdad Material:</strong> Privilegia realidad fáctica.</li>
+                                <li><strong>Trascendencia:</strong> No hay nulidad sin daño.</li>
+                                <li><strong>Buena Fe y Lealtad:</strong> Sanciona fraude.</li>
+                            </ul>
+                        </div>
+
+                        <!-- Nodo 3 -->
+                        <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm flex flex-col relative overflow-hidden">
+                            <div class="absolute top-0 right-0 bg-rose-50 w-16 h-16 rounded-bl-full -z-10"></div>
+                            <h4 class="font-bold text-rose-900 text-xs uppercase mb-3"><i data-lucide="heart-handshake" class="inline w-3 h-3"></i> ¿A quién protege?</h4>
+                            <ul class="text-[10px] text-slate-700 space-y-2 z-10">
+                                <li><strong>Protección a Familias:</strong> Tutela y resolución pronta.</li>
+                                <li><strong>Interculturalidad:</strong> Idioma (Ej. quechua).</li>
+                                <li><strong>Interés Superior NNA:</strong> <br><span class="text-rose-700 font-bold bg-rose-50 px-1 rounded">(SCP 0746/2024-S1, 31 de dic de 2024)</span>: Su evaluación exige garantías procesales.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col md:flex-row gap-4 shrink-0">
+                        <div class="flex-1 bg-pastel-mint p-4 rounded-xl border border-teal-200 shadow-sm flex items-center justify-between">
+                            <div>
+                                <h4 class="font-bold text-teal-900 text-sm mb-1">1.4. Relación Interjurisdiccional (Art. 221)</h4>
+                                <p class="text-[11px] text-slate-600">Expresión procesal del Pluralismo Jurídico (Jurisdicción Ordinaria e Indígena Art 179 CPE). Exige obrar dentro de competencias.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 question-box !mt-0 h-full flex flex-col justify-center">
+                            <div class="flex items-start gap-2">
+                                <i data-lucide="help-circle" class="w-5 h-5 shrink-0 mt-0.5"></i>
+                                <span>El Art. 220 enumera 11 principios "sin perjuicio de los constitucionales". ¿Qué principio constitucional echan de menos (ej. Publicidad/Gratuidad)?</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DIAPOSITIVA 4: UNIDAD II (JURISDICCIÓN Y COMPETENCIA CON FLIP CARDS) -->
+            <section class="slide flex-col p-6 max-w-7xl mx-auto w-full h-full" data-title="Unidad II: Jurisdicción y Competencia">
+                <div class="flex flex-col mb-4 shrink-0 border-b-2 border-emerald-200 pb-2">
+                    <span class="text-emerald-600 font-bold text-[10px] uppercase tracking-wider mb-1">UNIDAD II</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 font-serif-title flex items-center gap-2">
+                        <i data-lucide="map" class="w-6 h-6 text-emerald-500"></i> JURISDICCIÓN Y COMPETENCIA EN MATERIA FAMILIAR
+                    </h2>
+                </div>
+                
+                <div class="slide-scroll flex-1 overflow-y-auto pr-2">
+                    
+                    <!-- Diagrama de Árbol (Esquema Vertical Simplificado) -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 h-full pb-4">
+                        
+                        <!-- Columna 1: Jurisdicción -->
+                        <div class="flip-card">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front bg-white">
+                                    <i data-lucide="globe" class="w-8 h-8 text-emerald-600 mb-3"></i>
+                                    <h3 class="font-bold text-emerald-900 text-sm mb-2 uppercase text-center">2.1. Jurisdicción (Art. 222)</h3>
+                                    <p class="text-[10px] text-slate-500">Improrrogable e Indeclinable</p>
+                                </div>
+                                <div class="flip-card-back bg-emerald-900 text-white p-4">
+                                    <h4 class="font-bold text-xs border-b border-emerald-700 pb-1 mb-2 w-full text-center">Caracteres</h4>
+                                    <p class="text-[10px] text-emerald-100 text-left">
+                                        • Partes no pueden pactar otra vía por materia.<br>
+                                        • Juez no puede rehusarse.<br>
+                                        • Apoyo interdisciplinario obligatorio.<br>
+                                        • Deber: Si conoce violencia (Ej. Rolando), avisa a autoridad penal competente.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna 2: Competencia Material -->
+                        <div class="flip-card">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front bg-white">
+                                    <i data-lucide="briefcase" class="w-8 h-8 text-indigo-600 mb-3"></i>
+                                    <h3 class="font-bold text-indigo-900 text-sm mb-2 uppercase text-center">2.2. Competencia Material</h3>
+                                    <p class="text-[10px] text-slate-500">Guarda y Cuestiones Civiles</p>
+                                </div>
+                                <div class="flip-card-back bg-indigo-900 text-white p-4">
+                                    <h4 class="font-bold text-xs border-b border-indigo-700 pb-1 mb-2 w-full text-center">Reglas Especiales</h4>
+                                    <p class="text-[10px] text-indigo-100 text-left">
+                                        • <strong>Guarda:</strong> Juez familiar si emerge de desvinculación o asistencia. Si no (Ej. Abuela Elvira), Juez Niñez. <br>
+                                        <span class="text-amber-300 font-bold">(SCP 0394/2018-S4, 2 de ago 2018)</span>: Excepción para priorizar alimentos en familia ampliada.<br>
+                                        • <strong>Lote Ganancial (Civil):</strong> <span class="text-amber-300 font-bold">(AS 138/2020, 21 de feb 2020)</span> Juez familiar competente si depende de cuestión familiar.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna 3: Competencia Territorial -->
+                        <div class="flip-card">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front bg-white">
+                                    <i data-lucide="map-pin" class="w-8 h-8 text-rose-600 mb-3"></i>
+                                    <h3 class="font-bold text-rose-900 text-sm mb-2 uppercase text-center">2.3. Territorial (Art. 223)</h3>
+                                    <p class="text-[10px] text-slate-500">Fueros Concurrentes</p>
+                                </div>
+                                <div class="flip-card-back bg-rose-900 text-white p-4">
+                                    <h4 class="font-bold text-xs border-b border-rose-700 pb-1 mb-2 w-full text-center">Elección del Demandante</h4>
+                                    <p class="text-[10px] text-rose-100 text-left">
+                                        Elige entre: 1. Último domicilio conyugal. 2. Su residencia. 3. Residencia del demandado.<br>
+                                        <strong>Control de oficio:</strong> El juez debe inhibirse en su 1ra actuación y remitir (no rechazar).<br>
+                                        *Rolando no puede llevarse el caso a Montero.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- DIAPOSITIVA 5: UNIDAD III (AUTORIDAD) FLIP CARDS -->
+            <section class="slide flex-col p-6 max-w-7xl mx-auto w-full h-full" data-title="Unidad III: Sujetos Procesales (Autoridad)">
+                <div class="flex flex-col mb-4 shrink-0 border-b-2 border-amber-200 pb-2">
+                    <span class="text-amber-600 font-bold text-[10px] uppercase tracking-wider mb-1">UNIDAD III</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 font-serif-title flex items-center gap-2">
+                        <i data-lucide="user-check" class="w-6 h-6 text-amber-500"></i> SUJETOS DEL PROCESO FAMILIAR (3.1 y 3.2)
+                    </h2>
+                </div>
+                
+                <div class="slide-scroll flex-1 overflow-y-auto pr-2 flex flex-col gap-4">
+                    <div class="bg-white p-3 rounded-lg shadow-sm border border-slate-200 text-center shrink-0">
+                        <h3 class="font-bold text-slate-800 text-xs">3.1. Sujeto Procesal (Art. 229) y Libre Patrocinio (Art. 230)</h3>
+                        <p class="text-[11px] text-slate-600 mt-1">Sujeto es toda persona que interviene ("o de otra forma": Juez, equipo, NNA). <strong>Todas las partes son sujetos, no todos los sujetos son partes.</strong> Libre patrocinio: cambio de abogado no requiere pase profesional.</p>
+                    </div>
+
+                    <h3 class="font-bold text-amber-900 text-sm mt-2 text-center font-serif-title">3.2. La Autoridad Jurisdiccional (Proactividad)</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
+                        
+                        <!-- Flip 1: Proactividad -->
+                        <div class="flip-card">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front bg-pastel-amber border-amber-200">
+                                    <i data-lucide="zap" class="w-8 h-8 text-amber-600 mb-3"></i>
+                                    <h3 class="font-bold text-amber-900 text-sm mb-2 uppercase text-center">Art. 231 <br> Proactividad</h3>
+                                    <p class="text-[10px] text-amber-800">El Juez activo en el proceso.</p>
+                                </div>
+                                <div class="flip-card-back bg-amber-50 border border-amber-200 text-slate-800 p-4">
+                                    <h4 class="font-bold text-sm border-b border-amber-300 pb-1 mb-2 w-full text-center">Activismo Limitado</h4>
+                                    <p class="text-[10px] text-slate-600">
+                                        Se anticipa hacia una solución justa, rápida y efectiva.<br><br>
+                                        <strong>Debate:</strong> Activismo (Peyrano) vs Garantismo (Alvarado Velloso). Límite en Bolivia: Motivación y respeto al contradictorio.
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Flip 2: Deberes -->
+                        <div class="flip-card">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front bg-pastel-amber border-amber-200">
+                                    <i data-lucide="clipboard-list" class="w-8 h-8 text-amber-600 mb-3"></i>
+                                    <h3 class="font-bold text-amber-900 text-sm mb-2 uppercase text-center">Art. 232 <br> Deberes</h3>
+                                    <p class="text-[10px] text-amber-800">Traducción de los principios.</p>
+                                </div>
+                                <div class="flip-card-back bg-amber-50 border border-amber-200 text-slate-800 p-4">
+                                    <h4 class="font-bold text-sm border-b border-amber-300 pb-1 mb-2 w-full text-center">Obligaciones (Art 232)</h4>
+                                    <ul class="text-[10px] text-slate-600 space-y-1 list-disc pl-3">
+                                        <li>Dirigir hasta conclusión (Impulso).</li>
+                                        <li>Sancionar fraude procesal/colusión.</li>
+                                        <li>Resolver en tiempo + evitar violar DDHH de vulnerables.</li>
+                                        <li>Informar de oficio a partes (Ej. Justina quechuahablante).</li>
+                                        <li>Tutela efectiva del der. material.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Flip 3: Facultades -->
+                        <div class="flip-card">
+                            <div class="flip-card-inner">
+                                <div class="flip-card-front bg-pastel-amber border-amber-200">
+                                    <i data-lucide="shield-plus" class="w-8 h-8 text-amber-600 mb-3"></i>
+                                    <h3 class="font-bold text-amber-900 text-sm mb-2 uppercase text-center">Art. 235 <br> Facultades Excepc.</h3>
+                                    <p class="text-[10px] text-amber-800">Reserva, Plazos, Ejecución, Prueba.</p>
+                                </div>
+                                <div class="flip-card-back bg-amber-50 border border-amber-200 text-slate-800 p-4">
+                                    <h4 class="font-bold text-sm border-b border-amber-300 pb-1 mb-2 w-full text-center">Excepcionales</h4>
+                                    <ul class="text-[10px] text-slate-600 space-y-1 list-disc pl-3">
+                                        <li><strong>Reserva:</strong> Proteger NNA (Oír a Valeria).</li>
+                                        <li><strong>Plazos:</strong> Ampliar fundadamente.</li>
+                                        <li><strong>Ejecución provisoria:</strong> Res. no firme.</li>
+                                        <li><strong>Prueba:</strong> Ordenar de oficio.</li>
+                                    </ul>
+                                    <p class="mt-2 text-[9px] text-rose-600 font-bold border-t border-amber-300 pt-1">(SCP 0146/2024-S2, 2 de may 2024): Exigen justificación rigurosa.</p>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- DIAPOSITIVA 6: UNIDAD III (PARTES, ENTIDADES, TERCEROS) -->
+            <section class="slide flex-col p-6 max-w-7xl mx-auto w-full h-full" data-title="Unidad III: Partes, Entidades Públicas y Terceros">
+                <div class="flex flex-col mb-4 shrink-0 border-b-2 border-amber-200 pb-2">
+                    <span class="text-amber-600 font-bold text-[10px] uppercase tracking-wider mb-1">UNIDAD III</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 font-serif-title flex items-center gap-2">
+                        <i data-lucide="users" class="w-6 h-6 text-amber-500"></i> PARTES, ENTIDADES PÚBLICAS Y TERCEROS
+                    </h2>
+                </div>
+                
+                <div class="slide-scroll flex-1 overflow-y-auto pr-2">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                        
+                        <!-- Partes y Representación -->
+                        <div class="glass-panel p-4 rounded-xl border border-slate-200 bg-white">
+                            <h4 class="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">3.3. Partes y Representación</h4>
+                            <p class="text-[11px] text-slate-600 mb-2"><strong>Capacidad (Art 237):</strong> Aptitud para actos válidos. <br><span class="text-[9px] text-blue-700 bg-blue-50 px-1 rounded">(Corte IDH, Caso María y otros vs. Argentina, 22 de ago 2023)</span>: Derecho de adolescente a asistencia.</p>
+                            
+                            <div class="bg-pastel-peach p-2 rounded border border-orange-200 mt-2">
+                                <span class="text-xs font-bold text-orange-900 block">Rep. Sin Mandato (Art 239)</span>
+                                <p class="text-[10px] text-orange-800 mt-1">Lista cerrada (cónyuge, padres, hermanos -Edwin-). <strong>Excluye abuelos</strong> (Elvira). Límite material: NO en acciones personales (Divorcio). Límite temporal: Ratificar antes de sentencia.</p>
+                            </div>
+                        </div>
+
+                        <!-- Entidades y NNA -->
+                        <div class="glass-panel p-4 rounded-xl border border-slate-200 bg-white">
+                            <h4 class="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">3.4. Entidades y NNA (Art. 241-242)</h4>
+                            <p class="text-[11px] text-slate-600 mb-2">DNA, SLIM: Son <em>intervinientes</em> (no partes). <br><span class="text-[9px] text-rose-700 bg-rose-50 px-1 rounded">(SCP 1140/2023-S3, 27 de dic 2023)</span>: Falta de notificación afecta debido proceso del niño, aunque su inasistencia no anule.</p>
+                            
+                            <div class="bg-pastel-blue p-2 rounded border border-blue-200 mt-2">
+                                <span class="text-xs font-bold text-blue-900 block">El Derecho de Valeria (Oír al NNA)</span>
+                                <p class="text-[10px] text-blue-800 mt-1"><span class="font-bold">(SCP 0023/2019-S2, 15 de mar 2019)</span>: Deber de conversar en reserva. No depende de edad. <em>Escuchar no es obedecer.</em></p>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <!-- Terceros -->
+                    <div class="glass-panel p-4 rounded-xl border border-slate-200 bg-white mb-4 flex flex-col md:flex-row gap-4">
+                        <div class="flex-1">
+                            <h4 class="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">3.5. Intervención de Terceros (Arts. 243-247)</h4>
+                            <p class="text-[11px] text-slate-700"><strong>Exclusión (Art 243):</strong> No se admiten <em>terceros coadyuvantes</em> ni de <em>pago preferente</em>. (Sr. Quiroga no coadyuva).</p>
+                            <p class="text-[11px] text-slate-700 mt-2"><strong>Única admitida: Tercería de Dominio Excluyente.</strong></p>
+                            <ul class="text-[10px] text-slate-600 list-disc pl-4 mt-1">
+                                <li>En ejecución hasta antes del remate.</li>
+                                <li>Requisito: <strong>Prueba documental inscrita en DD.RR.</strong> anterior al inicio del proceso.</li>
+                            </ul>
+                        </div>
+                        <div class="flex-1 bg-pastel-rose p-3 rounded border border-rose-200 flex flex-col justify-center text-center">
+                            <span class="text-xs font-bold text-rose-900 block">Colusión (Art 247)</span>
+                            <p class="text-[10px] text-rose-800 mt-1">Acuerdo fraudulento. Si el Juez constata fundadamente que tercerista actúa en colusión, dispone sanciones (deber Art 232.b).</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DIAPOSITIVA 7: UNIDAD IV (NULIDAD 4.1 y 4.2) NODE DIAGRAM -->
+            <section class="slide flex-col p-6 max-w-7xl mx-auto w-full h-full" data-title="Unidad IV: Nulidad Procesal (1)">
+                <div class="flex flex-col mb-4 shrink-0 border-b-2 border-rose-200 pb-2">
+                    <span class="text-rose-600 font-bold text-[10px] uppercase tracking-wider mb-1">UNIDAD IV</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 font-serif-title flex items-center gap-2">
+                        <i data-lucide="file-warning" class="w-6 h-6 text-rose-500"></i> NULIDAD PROCESAL (4.1 y 4.2)
+                    </h2>
+                </div>
+                
+                <div class="slide-scroll flex-1 overflow-y-auto pr-2 flex flex-col items-center">
+                    <p class="text-xs text-slate-600 text-center mb-6 italic">Sanción que priva de efectos a un acto con vicio que impidió su fin o causó indefensión.</p>
+
+                    <!-- Esquema Nulidad -->
+                    <div class="relative w-full max-w-3xl mx-auto flex flex-col items-center">
+                        
+                        <div class="z-10 bg-rose-600 text-white p-3 rounded-lg shadow-md font-bold text-sm w-48 text-center mb-6">
+                            Principios de Nulidad
+                        </div>
+
+                        <!-- Conector vertical principal -->
+                        <div class="absolute top-10 left-1/2 w-px h-full bg-slate-300 -z-10 hidden md:block"></div>
+
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full z-10">
+                            
+                            <div class="glass-panel p-4 rounded-xl border-t-4 border-rose-400 bg-white">
+                                <h4 class="font-bold text-slate-800 text-xs mb-2">1. Condiciones Ley 025 y TCP</h4>
+                                <ul class="text-[10px] text-slate-600 space-y-1">
+                                    <li>• Reclamado <em>oportunamente</em>.</li>
+                                    <li>• Afecte derecho a la defensa.</li>
+                                </ul>
+                                <div class="mt-2 bg-rose-50 p-1.5 rounded text-[9px] text-rose-800">
+                                    <span class="font-bold">(SCP 0288/2018-S4, 18 de jun 2018)</span>: La nulidad es una decisión de última opción (Convalidación).
+                                </div>
+                            </div>
+
+                            <div class="glass-panel p-4 rounded-xl border-t-4 border-emerald-400 bg-white">
+                                <h4 class="font-bold text-slate-800 text-xs mb-2">2. Validez (Art. 248.I)</h4>
+                                <p class="text-[10px] text-slate-600">Válido si logró finalidad <em>"siempre y cuando no cause de manera directa indefensión"</em>.</p>
+                                <p class="text-[9px] text-slate-500 mt-1">(Indefensión: Privación real de alegar/probar).</p>
+                            </div>
+
+                            <div class="glass-panel p-4 rounded-xl border-t-4 border-indigo-400 bg-white md:col-span-2 max-w-lg mx-auto w-full">
+                                <h4 class="font-bold text-slate-800 text-xs mb-2 text-center">3. Nulidad de Oficio (Art. 248.II)</h4>
+                                <p class="text-[10px] text-slate-600 text-center mb-2">Solo actos <em>"expresamente previstos en la Ley"</em>. <br><span class="font-bold text-indigo-700">(AS 956/2019, 24 de sep 2019)</span>: Revisión no es absoluta.</p>
+                                <div class="bg-indigo-50 p-2 rounded text-[10px] text-indigo-900 border border-indigo-100 flex flex-col gap-1">
+                                    <span>• Providencia Juez Excusado: <strong>Nula expresamente (Art 226.I).</strong></span>
+                                    <span>• Contesta sin poder y sin ratificar: <strong>Nula expresamente (Art 239.II).</strong></span>
+                                    <span>• Citación irregular: <strong>No anula de oficio</strong>. Depende si causa indefensión.</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </section>
+
+            <!-- DIAPOSITIVA 8: UNIDAD IV (NULIDAD 4.3 y 4.4) -->
+            <section class="slide flex-col p-6 max-w-7xl mx-auto w-full h-full" data-title="Unidad IV: Nulidad Procesal (2)">
+                <div class="flex flex-col mb-4 shrink-0 border-b-2 border-rose-200 pb-2">
+                    <span class="text-rose-600 font-bold text-[10px] uppercase tracking-wider mb-1">UNIDAD IV</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 font-serif-title flex items-center gap-2">
+                        <i data-lucide="shield-alert" class="w-6 h-6 text-rose-500"></i> SUBSANACIÓN, CONVALIDACIÓN Y EXTENSIÓN (4.3 y 4.4)
+                    </h2>
+                </div>
+                
+                <div class="slide-scroll flex-1 overflow-y-auto pr-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4 h-full items-start">
+                        
+                        <div class="glass-panel p-5 rounded-xl border border-slate-200 bg-white">
+                            <h4 class="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">4.3. Subsanación y Convalidación (Art. 249)</h4>
+                            <p class="text-[11px] text-slate-700 mb-3">
+                                <strong>Subsanar:</strong> Corregir sin anular (si logró finalidad).<br>
+                                <strong>Convalidación tácita (Par II):</strong> No reclamar en la <em>"primera oportunidad hábil"</em>.
+                            </p>
+                            <div class="bg-pastel-green p-3 rounded-lg border border-green-200 text-[10px] text-green-900 mb-3">
+                                <strong>Ejemplo Citación Rolando:</strong> Si Rolando va a la audiencia y no observa la citación, logró su fin y se convalida (Arts. 248.I y 249.II).
+                            </div>
+                            <div class="bg-slate-50 p-2 rounded text-[10px] text-slate-700 border border-slate-200">
+                                <strong>Vía para pedirla <span class="font-bold text-indigo-700">(SCP 0703/2018-S1, 5 de nov 2018)</span>:</strong> El Incidente de Nulidad es el medio idóneo oportuno (antes de amparo).
+                            </div>
+                        </div>
+
+                        <div class="glass-panel p-5 rounded-xl border border-slate-200 bg-white">
+                            <h4 class="font-bold text-slate-800 text-sm mb-2 border-b border-slate-100 pb-1">4.4. Nulidad en Segunda Instancia (Arts. 250-251)</h4>
+                            <ul class="text-[11px] text-slate-700 space-y-3 mb-2">
+                                <li><strong>Orden (Art 250):</strong> Tribunal resuelve nulidad <em>antes</em> que el fondo. Si anula, devuelve. Se informa a Magistratura.</li>
+                                <li><strong>Extensión (Art 251):</strong> 
+                                    <ul class="list-disc pl-4 mt-1 space-y-1">
+                                        <li>Expansivo: Cae lo dependiente.</li>
+                                        <li>Conservación: Actos independientes se salvan.</li>
+                                        <li><strong class="text-rose-600">Deber del Juez:</strong> Especificar qué actos se anulan. Prohibido "anular hasta el vicio más antiguo".</li>
+                                    </ul>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- DIAPOSITIVA 9: CIERRE Y JURISPRUDENCIA -->
+            <section class="slide flex-col p-6 max-w-7xl mx-auto w-full h-full" data-title="Cierre y Jurisprudencia">
+                <div class="flex flex-col mb-4 shrink-0 border-b-2 border-slate-200 pb-2">
+                    <span class="text-blue-600 font-bold text-[10px] uppercase tracking-wider mb-1">Reflexión Final</span>
+                    <h2 class="text-xl md:text-2xl font-bold text-slate-800 font-serif-title flex items-center gap-2">
+                        <i data-lucide="scale" class="w-6 h-6 text-blue-500"></i> CIERRE Y CUADRO DE JURISPRUDENCIA
+                    </h2>
+                </div>
+                
+                <div class="slide-scroll flex-1 overflow-y-auto pr-2">
+                    
+                    <div class="glass-panel p-4 rounded-xl bg-pastel-blue border-blue-200 mb-6">
+                        <p class="text-[11px] font-academic text-blue-900 leading-relaxed text-center">
+                            El proceso familiar empieza bien o mal antes de la primera audiencia. Un abogado que domina la <strong>competencia, los sujetos y las nulidades</strong> evita meses de demora. La nulidad bien aplicada no destruye el proceso, lo depura conservando actos independientes.
+                        </p>
+                    </div>
+
+                    <div class="overflow-x-auto rounded-lg border border-slate-200 shadow-sm">
+                        <table class="w-full text-[9px] sm:text-[10px] text-left border-collapse bg-white">
+                            <thead class="bg-slate-100 text-slate-700">
+                                <tr>
+                                    <th class="p-2 border-b border-slate-300 font-bold">Resolución</th>
+                                    <th class="p-2 border-b border-slate-300 font-bold">Fecha</th>
+                                    <th class="p-2 border-b border-slate-300 font-bold">Órgano</th>
+                                    <th class="p-2 border-b border-slate-300 font-bold">Criterio Fundamental</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-slate-700">
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="p-2 font-bold text-indigo-700">SCP 0064/2018-S2</td>
+                                    <td class="p-2 text-slate-500 whitespace-nowrap">15 de mar de 2018</td>
+                                    <td class="p-2">TCP</td>
+                                    <td class="p-2">Obligación de juzgar con perspectiva de género.</td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="p-2 font-bold text-indigo-700">SCP 0288/2018-S4</td>
+                                    <td class="p-2 text-slate-500 whitespace-nowrap">18 de jun de 2018</td>
+                                    <td class="p-2">TCP</td>
+                                    <td class="p-2">Nulidad como última opción; convalidación (Arts 248-251).</td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="p-2 font-bold text-indigo-700">SCP 0394/2018-S4</td>
+                                    <td class="p-2 text-slate-500 whitespace-nowrap">2 de ago de 2018</td>
+                                    <td class="p-2">TCP</td>
+                                    <td class="p-2">Flexibilización (Art 222.IV) para niños con familia ampliada.</td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="p-2 font-bold text-indigo-700">SCP 1140/2023-S3</td>
+                                    <td class="p-2 text-slate-500 whitespace-nowrap">27 de dic de 2023</td>
+                                    <td class="p-2">TCP</td>
+                                    <td class="p-2">Notificación a Defensoría Niñez es indispensable ante afectación.</td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="p-2 font-bold text-indigo-700">SCP 0746/2024-S1</td>
+                                    <td class="p-2 text-slate-500 whitespace-nowrap">31 de dic de 2024</td>
+                                    <td class="p-2">TCP</td>
+                                    <td class="p-2">Evaluación del interés superior del niño exige garantías procesales.</td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="p-2 font-bold text-indigo-700">AS 138/2020</td>
+                                    <td class="p-2 text-slate-500 whitespace-nowrap">21 de feb de 2020</td>
+                                    <td class="p-2">TSJ</td>
+                                    <td class="p-2">Competencia familiar ante cuestiones civiles dependientes (venta lote).</td>
+                                </tr>
+                                <tr class="border-b border-slate-100 hover:bg-slate-50">
+                                    <td class="p-2 font-bold text-indigo-700">AS 956/2019</td>
+                                    <td class="p-2 text-slate-500 whitespace-nowrap">24 de sep de 2019</td>
+                                    <td class="p-2">TSJ</td>
+                                    <td class="p-2">Nulidad de oficio (Art. 248.II) se limita a casos previstos por ley.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50">
+                                    <td class="p-2 font-bold text-indigo-700">Corte IDH</td>
+                                    <td class="p-2 text-slate-500 whitespace-nowrap">Var.</td>
+                                    <td class="p-2">CIDH</td>
+                                    <td class="p-2"><em>Fornerón</em> (27/04/2012). <em>Angulo Losada</em> (18/11/2022). <em>María y otros</em> (22/08/2023). <em>Córdoba</em> (04/09/2023).</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+    </div>
+
+    <!-- Controles Inferiores -->
+    <div class="mt-4 flex gap-4 text-white z-50">
+        <button onclick="prevSlide()" class="px-4 py-2 bg-slate-700 hover:bg-slate-600 rounded-lg text-sm shadow flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="btn-prev">
+            <i data-lucide="arrow-left" class="w-4 h-4"></i> Anterior
+        </button>
+        <div class="text-[11px] text-slate-400 flex items-center">
+            Teclado: ← / → 
+            <span class="text-rose-500 ml-2 hidden sm:inline">(Puntero Láser con Mouse)</span>
+        </div>
+        <button onclick="nextSlide()" class="px-4 py-2 bg-blue-600 hover:bg-blue-500 rounded-lg text-sm shadow flex items-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed" id="btn-next">
+            Siguiente <i data-lucide="arrow-right" class="w-4 h-4"></i>
+        </button>
+    </div>
+
+    <script>
+        // Inicializar Iconos
+        lucide.createIcons();
+
+        // Puntero Láser
+        const laser = document.getElementById('laser-pointer');
+        const presentationZone = document.getElementById('presentation-stage');
+
+        document.addEventListener('mousemove', (e) => {
+            const rect = presentationZone.getBoundingClientRect();
+            if (e.clientY >= rect.top && e.clientY <= rect.bottom && e.clientX >= rect.left && e.clientX <= rect.right) {
+                laser.style.opacity = '1';
+                laser.style.left = e.clientX + 'px';
+                laser.style.top = e.clientY + 'px';
+            } else {
+                laser.style.opacity = '0';
+            }
+        });
+
+        // Lógica de Slides
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+        
+        const progressBar = document.getElementById('progress-bar');
+        const slideCounter = document.getElementById('slide-counter');
+        const topSlideTitle = document.getElementById('top-slide-title');
+        const btnPrev = document.getElementById('btn-prev');
+        const btnNext = document.getElementById('btn-next');
+
+        function initPresentation() {
+            updateUI();
+        }
+
+        function nextSlide() {
+            if (currentSlide < totalSlides - 1) {
+                slides[currentSlide].classList.remove('active');
+                currentSlide++;
+                slides[currentSlide].classList.add('active');
+                updateUI();
+            }
+        }
+
+        function prevSlide() {
+            if (currentSlide > 0) {
+                slides[currentSlide].classList.remove('active');
+                currentSlide--;
+                slides[currentSlide].classList.add('active');
+                updateUI();
+            }
+        }
+
+        function updateUI() {
+            const progress = (currentSlide / (totalSlides - 1)) * 100;
+            progressBar.style.width = `${progress}%`;
+            slideCounter.textContent = `${currentSlide + 1} / ${totalSlides}`;
+
+            const activeTitle = slides[currentSlide].getAttribute('data-title');
+            topSlideTitle.textContent = activeTitle || '';
+
+            btnPrev.disabled = currentSlide === 0;
+            btnNext.disabled = currentSlide === totalSlides - 1;
+            
+            const scrollArea = slides[currentSlide].querySelector('.slide-scroll');
+            if(scrollArea) scrollArea.scrollTop = 0;
+        }
+
+        // Teclado
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === ' ') {
+                e.preventDefault();
+                nextSlide();
+            } else if (e.key === 'ArrowLeft') {
+                e.preventDefault();
+                prevSlide();
+            } else if (e.key === 'f' || e.key === 'F') {
+                e.preventDefault();
+                toggleFullscreen();
+            }
+        });
+
+        // Pantalla Completa
+        function toggleFullscreen() {
+            const icon = document.getElementById('fullscreen-icon');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => console.log(err));
+                icon.setAttribute('data-lucide', 'minimize');
+            } else {
+                document.exitFullscreen();
+                icon.setAttribute('data-lucide', 'maximize');
+            }
+            lucide.createIcons();
+        }
+
+        // Init
+        window.addEventListener('DOMContentLoaded', initPresentation);
+    </script>
+</body>
+</html>
